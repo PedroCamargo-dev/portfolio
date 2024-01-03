@@ -1,5 +1,5 @@
-import SkillDataProvider from "@/components/SkillDataProvider";
 import { FC } from "react";
+import SkillData from "../SkillData";
 
 interface SkillItemProps {
   image: string;
@@ -10,7 +10,7 @@ interface SkillItemProps {
 
 const SkillItem: FC<SkillItemProps> = ({ image, width, height, index }) => {
   return (
-    <SkillDataProvider
+    <SkillData
       key={index}
       src={image}
       width={width}
