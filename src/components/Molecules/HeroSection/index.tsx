@@ -3,7 +3,6 @@
 import HeroDescription from "@/components/Atoms/HeroDescription";
 import HeroImage from "@/components/Atoms/HeroImage";
 import HeroText from "@/components/Atoms/HeroText";
-import LearnMoreButton from "@/components/Atoms/LearnMoreButton";
 import WelcomeBox from "@/components/Atoms/WelcomeBox";
 import { motion } from "framer-motion";
 
@@ -19,7 +18,6 @@ const HeroSection = () => {
         <WelcomeBox textBox="Front-end" />
         <HeroText />
         <HeroDescription />
-        <LearnMoreButton />
       </div>
       <HeroImage />
     </motion.div>
