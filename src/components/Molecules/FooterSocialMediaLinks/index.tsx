@@ -1,14 +1,20 @@
 import FooterIconLink from "@/components/Atoms/FooterIconLink";
-import { FaYoutube } from "react-icons/fa";
-import { RxDiscordLogo, RxGithubLogo } from "react-icons/rx";
+import { RxInstagramLogo, RxLinkedinLogo } from "react-icons/rx";
 
 const FooterSocialMediaLinks = () => {
   return (
     <div className="min-w-[200px] h-auto flex flex-col items-center justify-start">
-      <div className="font-bold text-[16px]">Social Media</div>
-      <FooterIconLink icon={<FaYoutube />} text="Instagram" />
-      <FooterIconLink icon={<RxGithubLogo />} text="Twitter" />
-      <FooterIconLink icon={<RxDiscordLogo />} text="Linkedin" />
+      <div className="font-bold text-[16px]">Redes Sociais</div>
+      <FooterIconLink
+        icon={<RxInstagramLogo />}
+        text="Instagram"
+        href="https://www.instagram.com/pedro_cmargo_/"
+      />
+      <FooterIconLink
+        icon={<RxLinkedinLogo />}
+        text="Linkedin"
+        href="https://www.linkedin.com/in/pedroc-dev/"
+      />
     </div>
   );
 };
