@@ -4,9 +4,9 @@ const Logo = () => (
   <Image
     src="/NavLogo.png"
     alt="Logo"
-    width={70}
-    height={70}
-    className="cursor-pointer hover:animate-slowspin"
+    width={50}
+    height={50}
+    className="cursor-pointer hover:animate-slowspin rounded-full"
   />
 );
 
