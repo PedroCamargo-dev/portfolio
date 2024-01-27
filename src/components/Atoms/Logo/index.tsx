@@ -1,12 +1,19 @@
 import Image from "next/image";
+import { FC } from "react";
 
-const Logo = () => (
+interface LogoProps {
+  width: number;
+  height: number;
+  className?: string;
+}
+
+const Logo: FC<LogoProps> = ({ width, height, className }) => (
   <Image
     src="/NavLogo.png"
     alt="Logo"
-    width={50}
-    height={50}
-    className="cursor-pointer hover:animate-slowspin rounded-full"
+    width={width}
+    height={height}
+    className={`cursor-pointer hover:animate-slowspin ${className}`}
   />
 );
 
