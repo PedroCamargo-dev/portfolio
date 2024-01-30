@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 interface FormProps extends React.FormHTMLAttributes<HTMLFormElement> {
   defaultValues?: Record<string, any>;
   children: ReactNode;
-  onSubmit: <T>(data: T) => void;
+  onSubmit: (data: any) => void;
 }
 
 export default function Form({
