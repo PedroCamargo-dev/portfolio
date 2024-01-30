@@ -35,7 +35,7 @@ export const Textarea: FC<TextareaProps> = ({
           {...props}
           className={`w-full text-sm p-3 focus:outline-none ${
             Icon && "pl-10"
-          } border-b border-purple-900 bg-transparent placeholder-purple-900 placeholder-opacity-50 text-purple-900 h-32`}
+          } border-b border-purple-900 bg-transparent placeholder-purple-900 placeholder-opacity-50 text-purple-900 h-26`}
         />
       </div>
     </div>
