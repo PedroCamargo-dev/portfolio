@@ -1,14 +1,5 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { db, storage } from "@/utils/config/db/firebase";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  updateDoc,
-} from "firebase/firestore";
 import {
   IoPencilOutline,
   IoTrashBinOutline,
@@ -20,173 +11,24 @@ import { Textarea } from "@/components/Atoms/Textarea";
 import { InputFile } from "@/components/Atoms/InputFile";
 import Image from "next/image";
 import { Spinner } from "@/components/Atoms/Spinner";
-import {
-  deleteObject,
-  getDownloadURL,
-  ref as storageRef,
-  uploadBytesResumable,
-} from "firebase/storage";
-
-type ProjectProps = {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl?: string;
-};
+import { useDashboard } from "@/hooks/dashboard/useDashboard";
+import { useActions } from "@/utils/hooks/useActions";
 
 export default function Home() {
-  const [showModal, setShowModal] = useState(false);
-  const [editTitle, setEditTitle] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-  const [idProject, setIdProject] = useState("");
-  const [image, setImage] = useState<File>();
-  const [imageURL, setImageURL] = useState<string | undefined>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [percent, setPercent] = useState(0);
-  const [projects, setProjects] = useState<ProjectProps[]>([]);
+  const {
+    handleModal,
+    handleEditClick,
+    handleUploadImage,
+    isLoading,
+    projects,
+    showModal,
+    editTitle,
+    editDescription,
+    imageURL,
+    image,
+  } = useDashboard();
 
-  const handleModal = useCallback(() => {
-    setShowModal((prevShowModal) => !prevShowModal);
-    if (showModal) {
-      setEditTitle("");
-      setEditDescription("");
-      setIdProject("");
-      setImage(undefined);
-    }
-  }, [showModal]);
-
-  const handleOutsideClick = useCallback((event: MouseEvent) => {
-    const modal = document.querySelector(".modal");
-    if (modal && !modal.contains(event.target as Node)) {
-      setShowModal(false);
-    }
-  }, []);
-
-  const handleEscKey = useCallback((event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      setShowModal(false);
-    }
-  }, []);
-
-  const handleEditClick = useCallback(
-    (
-      title: string,
-      description: string,
-      id: string,
-      image: string | undefined
-    ) => {
-      setEditTitle(title);
-      setEditDescription(description);
-      setIdProject(id);
-      setImageURL(image);
-      setShowModal(true);
-    },
-    []
-  );
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("keydown", handleEscKey);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("keydown", handleEscKey);
-    };
-  }, [handleOutsideClick, handleEscKey]);
-
-  useEffect(() => {
-    const getProjects = async () => {
-      const querySnapshot = await getDocs(collection(db, "projects"));
-      const projectsData: ProjectProps[] = [];
-
-      await Promise.all(
-        querySnapshot.docs.map(async (doc) => {
-          const projectData = { id: doc.id, ...doc.data() } as ProjectProps;
-
-          const imageRef = storageRef(storage, `projects/${doc.id}`);
-
-          const imageUrl = await getDownloadURL(imageRef);
-
-          projectData.imageUrl = imageUrl;
-
-          projectsData.push(projectData);
-        })
-      );
-
-      setProjects(projectsData);
-    };
-
-    getProjects();
-  }, []);
-
-  const onSubmit = async (data: ProjectProps) => {
-    setIsLoading(true);
-    try {
-      if (data.id !== "") {
-        if (image) {
-          const imageRef = storageRef(storage, `projects/${data.id}`);
-          const uploadTask = uploadBytesResumable(imageRef, image as File);
-
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              const percent = Math.round(
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-              );
-              setPercent(percent);
-            },
-            (err) => console.log(err)
-          );
-        }
-
-        await updateDoc(doc(db, "projects", data.id), {
-          title: data.title,
-          description: data.description,
-        });
-      } else {
-        const response = await addDoc(collection(db, "projects"), {
-          title: data.title,
-          description: data.description,
-        });
-        if (image) {
-          const imageRef = storageRef(storage, `projects/${response.id}`);
-          const uploadTask = uploadBytesResumable(imageRef, image as File);
-
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              const percent = Math.round(
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-              );
-              setPercent(percent);
-            },
-            (err) => console.log(err)
-          );
-        }
-      }
-
-      const querySnapshot = await getDocs(collection(db, "projects"));
-      const projectsData: ProjectProps[] = [];
-
-      await Promise.all(
-        querySnapshot.docs.map(async (doc) => {
-          const projectData = { id: doc.id, ...doc.data() } as ProjectProps;
-          const imageRef = storageRef(storage, `projects/${doc.id}`);
-          const imageUrl = await getDownloadURL(imageRef);
-          projectData.imageUrl = imageUrl;
-
-          projectsData.push(projectData);
-        })
-      );
-
-      setProjects(projectsData);
-
-      setIsLoading(false);
-      handleModal();
-    } catch (error: any) {
-      setIsLoading(false);
-      handleModal();
-    }
-  };
+  useActions({ handleModal });
 
   return (
     <div className="flex justify-center h-full items-center p-3">
@@ -252,12 +94,12 @@ export default function Home() {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="absolute inset-0 bg-gray-900 opacity-50"></div>
-          <div className="bg-white p-6 rounded-xl z-10 w-96">
+          <div className="bg-white p-6 rounded-xl z-10 w-96 modal">
             <h2 className="text-2xl font-bold mb-4">Adicionar Projeto</h2>
             <div className="w-full border-b bg-gray-500 mb-4"></div>
             <Form
               onSubmit={(data: ProjectProps) =>
-                onSubmit({ ...data, id: idProject })
+                onSubmit({ ...data, id: "asd" })
               }
             >
               <Input
@@ -279,7 +121,7 @@ export default function Home() {
                 name="image"
                 onChange={(e) => {
                   if (e.target.files) {
-                    setImage(e.target.files[0]);
+                    handleUploadImage(e.target.files[0]);
                   }
                 }}
               />
