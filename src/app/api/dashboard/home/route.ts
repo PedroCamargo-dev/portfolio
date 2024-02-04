@@ -32,7 +32,7 @@ export async function GET() {
     if (projectsData.length > 0) {
       return NextResponse.json(
         {
-          projects: projectsData,
+          content: projectsData,
         },
         { status: STATUS_CODE.OK }
       );
@@ -47,7 +47,7 @@ export async function GET() {
   } catch (error: any) {
     return NextResponse.json(
       {
-        message: "Erro ao buscar projetos",
+        content: { message: "Erro ao buscar projetos" },
       },
       { status: STATUS_CODE.INTERNAL_SERVER_ERROR }
     );

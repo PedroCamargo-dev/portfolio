@@ -52,42 +52,52 @@ export default function Home() {
             </span>
           </div>
         ) : (
-          projects.map((item: ProjectProps, index: number) => (
-            <div key={index}>
-              <div className="flex justify-between items-center flex-col sm:flex-row">
-                <div className="flex flex-row">
-                  <Image
-                    src={item.imageUrl as string}
-                    alt="Imagem do projeto"
-                    className="h-12 w-12 rounded-full bg-gray-300 bg-center"
-                    width={300}
-                    height={300}
-                  />
-                  <div className="flex flex-col ml-4 mr-4 mb-4">
-                    <span className="text-xl font-bold">{item.title}</span>
-                    <p className="text-gray-400">{item.description}</p>
+          <>
+            {projects.length > 0 ? (
+              projects.map((item: ProjectProps, index: number) => (
+                <div key={index}>
+                  <div className="flex justify-between items-center flex-col sm:flex-row">
+                    <div className="flex flex-row">
+                      <Image
+                        src={item.imageUrl as string}
+                        alt="Imagem do projeto"
+                        className="h-12 w-12 rounded-full bg-gray-300 bg-center"
+                        width={300}
+                        height={300}
+                      />
+                      <div className="flex flex-col ml-4 mr-4 mb-4">
+                        <span className="text-xl font-bold">{item.title}</span>
+                        <p className="text-gray-400">{item.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-row gap-4">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleEditClick(
+                            item.title,
+                            item.description,
+                            item.id,
+                            item?.imageUrl
+                          )
+                        }
+                      >
+                        <IoPencilOutline className="bg-gradient-to-r from-sky-500 to-blue-500 w-10 h-10 text-white rounded-md p-2.5 cursor-pointer" />
+                      </button>
+                      <IoTrashBinOutline className="bg-gradient-to-r from-red-500 to-orange-500 w-10 h-10 text-white rounded-md p-2.5 cursor-pointer" />
+                    </div>
                   </div>
+                  <div className="w-full border-b bg-gray-500 mb-4"></div>
                 </div>
-                <div className="flex flex-row gap-4">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleEditClick(
-                        item.title,
-                        item.description,
-                        item.id,
-                        item?.imageUrl
-                      )
-                    }
-                  >
-                    <IoPencilOutline className="bg-gradient-to-r from-sky-500 to-blue-500 w-10 h-10 text-white rounded-md p-2.5 cursor-pointer" />
-                  </button>
-                  <IoTrashBinOutline className="bg-gradient-to-r from-red-500 to-orange-500 w-10 h-10 text-white rounded-md p-2.5 cursor-pointer" />
-                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-xl font-semibold">
+                  {projects.message}
+                </span>
               </div>
-              <div className="w-full border-b bg-gray-500 mb-4"></div>
-            </div>
-          ))
+            )}
+          </>
         )}
       </div>
 

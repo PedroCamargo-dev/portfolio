@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { getProjects } from "@/services/dashboard";
+import { useCallback, useEffect, useState } from "react";
 
 export const useDashboard = () => {
   const [showModal, setShowModal] = useState(false);
@@ -8,8 +9,7 @@ export const useDashboard = () => {
   const [image, setImage] = useState<File>();
   const [imageURL, setImageURL] = useState<string | undefined>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [projects, setProjects] = useState<ProjectProps[]>([]);
-
+  const [projects, setProjects] = useState();
   const handleModal = useCallback(() => {
     setShowModal((prevShowModal) => !prevShowModal);
     if (showModal) {
@@ -39,6 +39,15 @@ export const useDashboard = () => {
     },
     []
   );
+
+  useEffect(() => {
+    const getAllProjects = async () => {
+      const response = await getProjects();
+      setProjects(response);
+    };
+
+    getAllProjects();
+  }, []);
 
   return {
     handleModal,
