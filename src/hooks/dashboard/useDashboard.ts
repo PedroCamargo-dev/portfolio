@@ -9,7 +9,8 @@ export const useDashboard = () => {
   const [image, setImage] = useState<File>();
   const [imageURL, setImageURL] = useState<string | undefined>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [projects, setProjects] = useState();
+  const [projects, setProjects] = useState([]);
+
   const handleModal = useCallback(() => {
     setShowModal((prevShowModal) => !prevShowModal);
     if (showModal) {
@@ -43,16 +44,26 @@ export const useDashboard = () => {
   useEffect(() => {
     const getAllProjects = async () => {
       const response = await getProjects();
-      setProjects(response);
+      setProjects(response.content);
     };
 
     getAllProjects();
   }, []);
 
+  const onSubmitRegister = (data) => {
+    console.log(data);
+  };
+
+  const onSubmitUpdate = (data) => {
+    console.log(data);
+  };
+
   return {
     handleModal,
     handleEditClick,
     handleUploadImage,
+    onSubmitRegister,
+    onSubmitUpdate,
     isLoading,
     projects,
     showModal,
