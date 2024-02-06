@@ -1,4 +1,5 @@
 import { STATUS_CODE } from "@/constants";
+import { IProjectProps } from "@/interface/IProjectProps";
 import { db, storage } from "@/utils/config/db/firebase";
 import {
   addDoc,
@@ -17,11 +18,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET() {
   try {
     const querySnapshot = await getDocs(collection(db, "projects"));
-    const projectsData: ProjectProps[] = [];
+    const projectsData: IProjectProps[] = [];
 
     await Promise.all(
       querySnapshot.docs.map(async (doc) => {
-        const projectData = { id: doc.id, ...doc.data() } as ProjectProps;
+        const projectData = { id: doc.id, ...doc.data() } as IProjectProps;
         const imageRef = storageRef(storage, `projects/${doc.id}`);
         const imageUrl = await getDownloadURL(imageRef);
         projectData.imageUrl = imageUrl;

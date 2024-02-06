@@ -1,4 +1,5 @@
 import { getProjects } from "@/services/dashboard";
+import { createProject } from "@/services/dashboard/createProject";
 import { useCallback, useEffect, useState } from "react";
 
 export const useDashboard = () => {
@@ -50,8 +51,24 @@ export const useDashboard = () => {
     getAllProjects();
   }, []);
 
-  const onSubmitRegister = (data) => {
-    console.log(data);
+  const onSubmitRegister = async (data) => {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      formData.append("image", image as File);
+
+      const response = await createProject(formData);
+      if (response) {
+        const projects = await getProjects();
+        setProjects(projects.content);
+      }
+      setShowModal(false);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   const onSubmitUpdate = (data) => {
