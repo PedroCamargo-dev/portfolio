@@ -4,11 +4,13 @@ import { db, storage } from "@/utils/config/db/firebase";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   updateDoc,
 } from "firebase/firestore";
 import {
+  deleteObject,
   getDownloadURL,
   ref as storageRef,
   uploadBytes,
@@ -40,7 +42,7 @@ export async function GET() {
     } else {
       return NextResponse.json(
         {
-          message: "Nenhum projeto encontrado",
+          content: { message: "Nenhum projeto encontrado" },
         },
         { status: STATUS_CODE.OK }
       );
@@ -106,13 +108,18 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id") as string;
   const formData = await req.formData();
+  let url = "";
 
-  if (
-    !id ||
-    !formData.get("title") ||
-    !formData.get("description") ||
-    !formData.get("image")
-  ) {
+  if (!id) {
+    return NextResponse.json(
+      {
+        message: "Projeto não encontrado",
+      },
+      { status: STATUS_CODE.NOT_FOUND }
+    );
+  }
+
+  if (!formData.get("title") || !formData.get("description")) {
     return NextResponse.json(
       {
         message: "Preencha todos os campos",
@@ -122,27 +129,31 @@ export async function PATCH(req: NextRequest) {
   }
 
   try {
-    const imageRef = storageRef(storage, `projects/${id}`);
-    const uploadTask = await uploadBytes(
-      imageRef,
-      formData.get("image") as File
-    );
+    await updateDoc(doc(db, "projects", id), {
+      title: formData.get("title"),
+      description: formData.get("description"),
+    });
 
-    if (uploadTask) {
-      const url = await getDownloadURL(imageRef);
-      await updateDoc(doc(db, "projects", id), {
-        title: formData.get("title"),
-        description: formData.get("description"),
-      });
-
-      return NextResponse.json(
-        {
-          message: "Projeto atualizado com sucesso",
-          url,
-        },
-        { status: STATUS_CODE.OK }
+    if (formData.get("image") !== null) {
+      const imageRef = storageRef(storage, `projects/${id}`);
+      const uploadTask = await uploadBytes(
+        imageRef,
+        formData.get("image") as File
       );
+
+      if (uploadTask) {
+        url = await getDownloadURL(imageRef);
+      }
     }
+    return NextResponse.json(
+      {
+        message: url
+          ? "Projeto completo atualizado com sucesso"
+          : "Projeto atualizado com sucesso, sem alteração de imagem",
+        url: url ? url : "",
+      },
+      { status: STATUS_CODE.OK }
+    );
   } catch (error: any) {
     return NextResponse.json(
       {
@@ -150,5 +161,59 @@ export async function PATCH(req: NextRequest) {
       },
       { status: STATUS_CODE.INTERNAL_SERVER_ERROR }
     );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id") as string;
+
+  if (!id) {
+    return NextResponse.json(
+      {
+        message: "Projeto não encontrado",
+      },
+      { status: STATUS_CODE.NOT_FOUND }
+    );
+  }
+
+  try {
+    const delDoc = await DeleteProject(id);
+
+    if (!delDoc) {
+      return NextResponse.json(
+        {
+          message: "Erro ao deletar projeto",
+        },
+        { status: STATUS_CODE.INTERNAL_SERVER_ERROR }
+      );
+    }
+
+    if (delDoc) {
+      const imageRef = storageRef(storage, `projects/${id}`);
+      await deleteObject(imageRef);
+    }
+
+    return NextResponse.json(
+      {
+        message: "Projeto deletado com sucesso",
+      },
+      { status: STATUS_CODE.OK }
+    );
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        message: "Erro ao deletar projeto",
+      },
+      { status: STATUS_CODE.INTERNAL_SERVER_ERROR }
+    );
+  }
+}
+
+async function DeleteProject(id: string): Promise<boolean> {
+  try {
+    await deleteDoc(doc(db, "projects", id));
+    return true;
+  } catch (error: any) {
+    return false;
   }
 }

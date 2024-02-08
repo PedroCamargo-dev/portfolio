@@ -4,12 +4,12 @@ import { InputFile } from "@/components/Atoms/InputFile";
 import { Spinner } from "@/components/Atoms/Spinner";
 import { Textarea } from "@/components/Atoms/Textarea";
 import { Modal } from "@/components/Molecules/Modal";
-import { useActions } from "@/utils/hooks/useActions";
+import { IData } from "@/interface/IData";
 import Image from "next/image";
 import { FC, FormEvent } from "react";
 
 interface ModalProjectRegisterProps {
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onSubmit: (data: IData) => void;
   handleUploadImage: (file: File) => void;
   isLoading: boolean;
   handleModal: () => void;

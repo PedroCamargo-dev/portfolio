@@ -1,5 +1,8 @@
+import { IData } from "@/interface/IData";
 import { getProjects } from "@/services/dashboard";
 import { createProject } from "@/services/dashboard/createProject";
+import { deleteProject } from "@/services/dashboard/deleteProject";
+import { updateProject } from "@/services/dashboard/updateProject";
 import { useCallback, useEffect, useState } from "react";
 
 export const useDashboard = () => {
@@ -11,6 +14,7 @@ export const useDashboard = () => {
   const [imageURL, setImageURL] = useState<string | undefined>("");
   const [isLoading, setIsLoading] = useState(false);
   const [projects, setProjects] = useState([]);
+  const [isDelete, setIsDelete] = useState(false);
 
   const handleModal = useCallback(() => {
     setShowModal((prevShowModal) => !prevShowModal);
@@ -19,12 +23,20 @@ export const useDashboard = () => {
       setEditDescription("");
       setIdProject("");
       setImage(undefined);
+      setIsDelete(false);
     }
   }, [showModal]);
 
   const handleUploadImage = (image: File) => {
     setImage(image);
   };
+
+  const handleDelete = useCallback((id: string, title: string) => {
+    setIdProject(id);
+    setEditTitle(title);
+    setIsDelete(true);
+    setShowModal(true);
+  }, []);
 
   const handleEditClick = useCallback(
     (
@@ -42,16 +54,16 @@ export const useDashboard = () => {
     []
   );
 
-  useEffect(() => {
-    const getAllProjects = async () => {
-      const response = await getProjects();
-      setProjects(response.content);
-    };
-
-    getAllProjects();
+  const getAllProjects = useCallback(async () => {
+    const response = await getProjects();
+    setProjects(response.content);
   }, []);
 
-  const onSubmitRegister = async (data) => {
+  useEffect(() => {
+    getAllProjects();
+  }, [getAllProjects]);
+
+  const onSubmitRegister = async (data: IData) => {
     setIsLoading(true);
     try {
       const formData = new FormData();
@@ -61,8 +73,7 @@ export const useDashboard = () => {
 
       const response = await createProject(formData);
       if (response) {
-        const projects = await getProjects();
-        setProjects(projects.content);
+        getAllProjects();
       }
       setShowModal(false);
       setIsLoading(false);
@@ -71,17 +82,52 @@ export const useDashboard = () => {
     }
   };
 
-  const onSubmitUpdate = (data) => {
-    console.log(data);
+  const onSubmitUpdate = async (data: IData) => {
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+      if (image) {
+        formData.append("image", image);
+      }
+
+      const response = await updateProject(formData, idProject);
+      if (response) {
+        getAllProjects();
+      }
+      setShowModal(false);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
+  };
+
+  const onSubmitDelete = async () => {
+    setIsLoading(true);
+    try {
+      const response = await deleteProject(idProject);
+      if (response) {
+        getAllProjects();
+      }
+      setShowModal(false);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
+    setIsDelete(false);
   };
 
   return {
     handleModal,
     handleEditClick,
+    handleDelete,
     handleUploadImage,
     onSubmitRegister,
     onSubmitUpdate,
+    onSubmitDelete,
     isLoading,
+    isDelete,
     projects,
     showModal,
     editTitle,

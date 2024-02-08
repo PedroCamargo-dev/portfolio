@@ -4,12 +4,12 @@ import { InputFile } from "@/components/Atoms/InputFile";
 import { Spinner } from "@/components/Atoms/Spinner";
 import { Textarea } from "@/components/Atoms/Textarea";
 import { Modal } from "@/components/Molecules/Modal";
-import { useActions } from "@/utils/hooks/useActions";
+import { IData } from "@/interface/IData";
 import Image from "next/image";
 import { FC } from "react";
 
 interface ModalProjectUpdateProps {
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onSubmit: (data: IData) => void;
   editTitle: string;
   editDescription: string;
   handleUploadImage: (file: File) => void;
@@ -64,13 +64,7 @@ export const ModalProjectUpdate: FC<ModalProjectUpdateProps> = ({
             disabled={isLoading}
           >
             <span className="text-md font-semibold">
-              {isLoading ? (
-                <Spinner color="emerald" />
-              ) : editTitle || editDescription ? (
-                "Atualizar"
-              ) : (
-                "Cadastrar"
-              )}
+              {isLoading ? <Spinner color="emerald" /> : "Atualizar projeto"}
             </span>
           </button>
           <button

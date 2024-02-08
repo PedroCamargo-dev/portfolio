@@ -1,6 +1,8 @@
 import { Spinner } from "@/components/Atoms/Spinner";
+import { ModalProjectDelete } from "@/components/Organisms/ModalProjectDelete";
 import { ModalProjectRegister } from "@/components/Organisms/ModalProjectRegister";
 import { ModalProjectUpdate } from "@/components/Organisms/ModalProjectUpdate";
+import { IData } from "@/interface/IData";
 import { IProjectProps } from "@/interface/IProjectProps";
 import Image from "next/image";
 import { FC, FormEvent } from "react";
@@ -18,10 +20,13 @@ interface ProjectProps {
     id: string,
     imageUrl: string | undefined
   ) => void;
+  handleDelete: (id: string, title: string) => void;
   projects: IProjectProps[] & { message?: string };
   isLoading: boolean;
-  onSubmitRegister: (e: FormEvent<HTMLFormElement>) => void;
-  onSubmitUpdate: (e: FormEvent<HTMLFormElement>) => void;
+  isDelete: boolean;
+  onSubmitRegister: (data: IData) => void;
+  onSubmitUpdate: (data: IData) => void;
+  onSubmitDelete: () => void;
   handleUploadImage: (file: File) => void;
   editTitle: string;
   editDescription: string;
@@ -33,10 +38,13 @@ interface ProjectProps {
 export const DashboardHome: FC<ProjectProps> = ({
   handleModal,
   handleEditClick,
+  handleDelete,
   projects,
   isLoading,
+  isDelete,
   onSubmitRegister,
   onSubmitUpdate,
+  onSubmitDelete,
   handleUploadImage,
   editTitle,
   editDescription,
@@ -101,7 +109,12 @@ export const DashboardHome: FC<ProjectProps> = ({
                         >
                           <IoPencilOutline className="bg-gradient-to-r from-sky-500 to-blue-500 w-10 h-10 text-white rounded-md p-2.5 cursor-pointer" />
                         </button>
-                        <IoTrashBinOutline className="bg-gradient-to-r from-red-500 to-orange-500 w-10 h-10 text-white rounded-md p-2.5 cursor-pointer" />
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(item.id, item.title)}
+                        >
+                          <IoTrashBinOutline className="bg-gradient-to-r from-red-500 to-orange-500 w-10 h-10 text-white rounded-md p-2.5 cursor-pointer" />
+                        </button>
                       </div>
                     </div>
                     <div className="w-full border-b bg-gray-500 mb-4"></div>
@@ -118,14 +131,16 @@ export const DashboardHome: FC<ProjectProps> = ({
           )}
         </div>
       </div>
-      <ModalProjectRegister
-        onSubmit={onSubmitRegister}
-        handleUploadImage={handleUploadImage}
-        isLoading={isLoading}
-        handleModal={handleModal}
-        image={image}
-        showModal={showModal}
-      />
+      {!isDelete && (
+        <ModalProjectRegister
+          onSubmit={onSubmitRegister}
+          handleUploadImage={handleUploadImage}
+          isLoading={isLoading}
+          handleModal={handleModal}
+          image={image}
+          showModal={showModal}
+        />
+      )}
       {editTitle && editDescription && !image && (
         <ModalProjectUpdate
           onSubmit={onSubmitUpdate}
@@ -136,6 +151,15 @@ export const DashboardHome: FC<ProjectProps> = ({
           handleModal={handleModal}
           image={image}
           imageURL={imageURL}
+          showModal={showModal}
+        />
+      )}
+      {isDelete && (
+        <ModalProjectDelete
+          onHandleDelete={onSubmitDelete}
+          isLoading={isLoading}
+          titleProject={editTitle}
+          handleModal={handleModal}
           showModal={showModal}
         />
       )}
